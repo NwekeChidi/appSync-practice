@@ -1,0 +1,14 @@
+service: sls-appSync-backend
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stage: dev
+  region: us-east-2
+
+functions:
+  hello:
+    handler: handler.hello
+resources:
+ Resources: ${file(./resources.yml)}

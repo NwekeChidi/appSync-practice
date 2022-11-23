@@ -1,0 +1,135 @@
+# books Table
+booksTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    AttributeDefinitions:
+      - AttributeName: 'bookId'
+        AttributeType: 'S'
+    BillingMode: PAY_PER_REQUEST
+    KeySchema:
+      - AttributeName: 'bookId'
+        KeyType: 'HASH'
+
+# order Table
+orderTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    AttributeDefinitions:
+      - AttributeName: 'userId'
+        AttributeType: 'S'
+      - AttributeName: 'bookId'
+        AttributeType: 'S'
+      - AttributeName: 'orderId'
+        AttributeType: 'S'
+      - AttributeName: 'createdAt'
+        AttributeType: 'S'
+    BillingMode: PAY_PER_REQUEST
+    KeySchema:
+      - AttributeName: 'userId'
+        KeyType: 'HASH'
+      - AttributeName: 'orderId'
+        KeyType: 'RANGE'
+    GlobalSecondaryIndexes:
+      - IndexName: 'byOrder'
+        KeySchema: 
+          - AttributeName: 'bookId'
+            KeyType: 'HASH'
+          - AttributeName: 'createdAt'
+            KeyType: 'RANGE'
+        Projection:
+          ProjectionType: ALL
+
+# cognito        
+cognitoUserPool:
+  Type: AWS::Cognito::UserPool
+  Properties:
+    UsernameAttributes: 
+      - email
+    UserPoolName: 'LearningAppSync'
+
+cognitoUserPoolClient:
+  Type: AWS::Cognito::UserPoolClient
+  Properties:
+    ClientName: Web
+    UserPoolId: !Ref cognitoUserPool
+
+## cognito user pool groups
+# admin
+cognitoAdminGroup:
+  Type: AWS::Cognito::UserPoolGroup
+  Properties:
+    Description: 'User group for admins'
+    GroupName: 'Admin'
+    Precedence: 0
+    RoleArn: !GetAtt cognitoAdminIAMRole.Arn
+    UserPoolId: !Ref cognitoUserPool
+
+# Admin role
+cognitoAdminIAMRole:
+  Type: AWS::IAM::Role
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement: 
+        - Effect: Allow
+          Principal: 
+            Federated:
+              - 'cognito-identity.amazonaws.com'
+          Action:
+            - "sts:AssumeRoleWithWebIdentity"
+    Description: 'IAM role assumed by admins'
+    Policies:
+      - PolicyName: 'learning-appSync-admin-group-policy'
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - "dynamodb:*"
+              Resource:
+                - !GetAtt booksTable.Arn
+                - !GetAtt orderTable.Arn
+    RoleName: 'learning-appSync-admin-role'
+
+# customers
+cognitoCustomerGroup:
+  Type: AWS::Cognito::UserPoolGroup
+  Properties:
+    Description: 'User group for Customers'
+    GroupName: 'Customer'
+    Precedence: 1
+    RoleArn: !GetAtt cognitoCustomerIAMRole.Arn
+    UserPoolId: !Ref cognitoUserPool
+
+# Customer role
+cognitoCustomerIAMRole:
+  Type: AWS::IAM::Role
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement: 
+        - Effect: Allow
+          Principal: 
+            Federated:
+              - 'cognito-identity.amazonaws.com'
+          Action:
+            - "sts:AssumeRoleWithWebIdentity"
+    Description: 'IAM role assumed by customers'
+    Policies:
+      - PolicyName: 'learning-appSync-customer-group-policy'
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - "dynamodb:*"
+              Resource:
+                - !GetAtt orderTable.Arn
+            - Effect: Allow
+              Action:
+                - "dynamodb:GetItem"
+                - "dynamodb:Query"
+                - "dynamodb:BatchGetItem"
+              Resource:
+                - !GetAtt booksTable.Arn
+    RoleName: 'learning-appSync-customer-role'
