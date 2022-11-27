@@ -7,6 +7,32 @@ provider:
   stage: dev
   region: us-east-2
 
+plugins:
+  - serverless-appsync-plugin
+
+custom:
+  appSync:
+    name: learningAppSyncAPI
+    authenticationType: AMAZON_COGNITO_USER_POOLS
+    userPoolConfig:
+      awsRegion: us-east-2
+      defaultAction: ALLOW
+      userPoolId: !Ref cognitoUserPool
+    mappingTemplatesLocation: mapping-templates
+    mappingTemplates:
+      - type: Query
+        field: getBookById
+        dataSource: booksTable
+      - type: Mutation
+        field: createBook
+        dataSource: booksTable
+    dataSources:
+      - type: AMAZON_DYNAMODB
+        name: booksTable
+        config:
+          tableName: !Ref booksTable
+
+
 functions:
   hello:
     handler: handler.hello
