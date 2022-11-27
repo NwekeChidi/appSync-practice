@@ -6,7 +6,7 @@ schema {
 # Query
 type Query {
     getBookById(bookID: ID!): Book!
-    listBooks(limit: Int!, nextToken: String): BookByPages!
+    listBooks(limit: Int!, nextToken: String): BooksByPages!
     myOrders(limit: Int!, nextToken: String): OrderItemByPages!
 }
 
@@ -21,7 +21,7 @@ type Book {
     updatedAt: AWSDateTime!
 }
 
-type BooksByPage {
+type BooksByPages {
     books: [Book]
     nextToken: String
 }
