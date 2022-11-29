@@ -5,7 +5,7 @@ schema {
 
 # Query
 type Query {
-    getBookById(bookID: ID!): Book!
+    getBookById(bookId: ID!): Book!
     listBooks(limit: Int!, nextToken: String): BooksByPages!
     myOrders(limit: Int!, nextToken: String): OrderItemByPages!
 }
