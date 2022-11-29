@@ -11,7 +11,7 @@ type Query {
 }
 
 type Book {
-    boodId: ID!
+    bookId: ID!
     title: String!
     description: String
     imageUrl: AWSURL
