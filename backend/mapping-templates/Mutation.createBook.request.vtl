@@ -3,6 +3,7 @@
     "operation" : "PutItem",
     "key": {
         "bookId" : $util.dynamodb.toDynamoDBJson($util.autoId())
+    },
     "attributeValues" : {
         "title": $util.dynamodb.toDynamoDBJson($ctx.args.newBook.title),
         "description": $util.dynamodb.toDynamoDBJson($ctx.args.newBook.description),

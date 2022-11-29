@@ -31,10 +31,5 @@ custom:
         name: booksTable
         config:
           tableName: !Ref booksTable
-
-
-functions:
-  hello:
-    handler: handler.hello
 resources:
  Resources: ${file(./resources.yml)}

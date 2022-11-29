@@ -44,7 +44,7 @@ type Mutation {
     createOrder(newOrder: OrderInput): Boolean!
 }
 
-type BookInput {
+input BookInput {
     title: String!
     description: String
     imageUrl: AWSURL
