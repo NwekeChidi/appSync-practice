@@ -1,5 +1,6 @@
 service: sls-appSync-backend
 frameworkVersion: '3'
+configValidationMode: error
 
 provider:
   name: aws
@@ -10,26 +11,34 @@ provider:
 plugins:
   - serverless-appsync-plugin
 
-custom:
-  appSync:
-    name: learningAppSyncAPI
-    authenticationType: AMAZON_COGNITO_USER_POOLS
-    userPoolConfig:
-      awsRegion: us-east-2
+appSync:
+  name: learningAppSyncAPI
+
+  logging:
+    level: ALL
+
+  authentication:
+    type: AMAZON_COGNITO_USER_POOLS
+    config:
       defaultAction: ALLOW
       userPoolId: !Ref cognitoUserPool
-    mappingTemplatesLocation: mapping-templates
-    mappingTemplates:
-      - type: Query
-        field: getBookById
-        dataSource: booksTable
-      - type: Mutation
-        field: createBook
-        dataSource: booksTable
-    dataSources:
-      - type: AMAZON_DYNAMODB
-        name: booksTable
-        config:
-          tableName: !Ref booksTable
+
+  dataSources:
+    booksTable:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref booksTable
+  
+  resolvers:
+    Query.getBookById:
+      functions:
+        - dataSource: booksTable
+          code: resolvers/Query.getBookById.js
+          
+
+    Mutation.createBook:
+      functions:
+        - dataSource: booksTable
+          code: resolvers/Mutation.createBook.js
 resources:
- Resources: ${file(./resources.yml)}
+  Resources: ${file(./resources.yml)}
