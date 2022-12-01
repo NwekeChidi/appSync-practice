@@ -10,6 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "serverless-appsync-plugin": "^1.14.0"
+    "@aws-appsync/eslint-plugin": "^1.0.1",
+    "@aws-appsync/utils": "^1.0.1",
+    "eslint": "^8.28.0",
+    "serverless-appsync-plugin": "^2.0.0-alpha.13"
   }
 }
